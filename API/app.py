@@ -10,6 +10,7 @@ from sklearn.preprocessing import LabelEncoder
 import category_encoders as ce
 import catboost as cb
 import os
+import shutil
 
 app = Flask(__name__)
 
@@ -27,7 +28,7 @@ def encode_df(df):
     return pd.concat((X, pd.Series(y).rename('income')), axis=1)
 
 def load_dataset(data_file):
-    df = pd.read_csv('data/us census data.csv')
+    df = pd.read_csv('data/data.csv')
     df = df.replace("?", "Other")
     df = encode_df(df)
     X_train, X_test, y_train, y_test = train_test_split(df.iloc[:,:-1],df.iloc[:,-1],test_size=0.2, random_state=1)
@@ -42,14 +43,21 @@ def evaluate_model(model,X_train,y_train,X_test,y_test):
 def get_persistent_variables():
     context = {}
     context['model_list'] = os.listdir("./models/")
-    context['workclass_list'] = ['State-gov','Self-emp-not-inc','Private','Federal-gov','Local-gov','Other','Self-emp-inc']
-    context['education_list'] = ['Bachelors','HS-grad','11th','Masters','9th','Some-college','Assoc-acdm','Assoc-voc','7th-8th','Doctorate', 'Prof-school','5th-6th','10th','1st-4th','Preschool','12th']
-    context['marital_list'] = ['Never-married','Married-civ-spouse','Divorced','Married-spouse-absent','Separated','Married-AF-spouse','Widowed']
-    context['occupation_list'] = ['Adm-clerical','Exec-managerial','Handlers-cleaners','Prof-specialty','Other-service','Sales','Craft-repair','Transport-moving','Farming-fishing','Machine-op-inspct','Tech-support','Other','Protective-serv','Armed-Forces','Priv-house-serv']
-    context['relationship_list'] = ['Not-in-family','Husband','Wife','Own-child','Unmarried','Other-relative']
-    context['race_list'] = ['White', 'Black', 'Asian-Pac-Islander', 'Amer-Indian-Eskimo', 'Other']
-    context['sex_list'] = ['Male', 'Female']
-    context['country_list'] = ['United-States','Cuba','Jamaica','India','Other','Mexico','South','Puerto-Rico','Honduras','England','Canada','Germany','Iran','Philippines','Italy','Poland','Columbia','Cambodia','Thailand','Ecuador','Laos','Taiwan','Haiti','Portugal','Dominican-Republic','El-Salvador','France','Guatemala','China','Japan','Yugoslavia','Peru','Outlying-US(Guam-USVI-etc)','Scotland','Trinadad&Tobago','Greece','Nicaragua', 'Vietnam','Hong','Ireland','Hungary','Holand-Netherlands']
+    context['trained'] = "data.csv" in os.listdir("./data/") and len(os.listdir("./models/")) != 0
+    context['uploaded'] = "data.csv" in os.listdir("./data/")
+
+    if context['trained'] == True:
+        df = pd.read_csv('./data/data.csv')
+        df = df.replace("?", "Other")
+
+        context['workclass_list'] = list(df['workclass'].unique())
+        context['education_list'] = list(df['education'].unique())
+        context['marital_list'] = list(df['marital-status'].unique())
+        context['occupation_list'] = list(df['occupation'].unique())
+        context['relationship_list'] = list(df['relationship'].unique())
+        context['race_list'] = list(df['race'].unique())
+        context['sex_list'] = list(df['sex'].unique())
+        context['country_list'] = list(df['native-country'].unique())
 
     return context
 
@@ -63,14 +71,39 @@ def hello_world():
 
 @app.route('/', methods=['POST'])
 def predict():
-    if request.form['action'] == "Train":
+    if request.form['action'] == "Upload":
         dataset = request.files['dataset']
-        dataset_path = "./data/" + dataset.filename
+        dataset_path = "./data/" + "data.csv"
         dataset.save(dataset_path)
+
+        return render_template('index.html', **get_persistent_variables())
+
+    if request.form['action'] == "Change":
+        for f in os.listdir("./data/"):
+            os.remove(os.path.join("./data/", f))
+        for f in os.listdir("./models/"):
+            os.remove(os.path.join("./models/", f))
+        dataset = request.files['dataset']
+        dataset_path = "./data/" + "data.csv"
+        dataset.save(dataset_path)
+
+        return render_template('index.html', **get_persistent_variables())
+
+    if request.form['action'] == "Train":
+        # dataset = request.files['dataset']
+        dataset_path = "./data/" + "data.csv"
+        # dataset.save(dataset_path)
+
+        lr = float(request.form['learning-rate'])
+        dep = int(request.form['depth'])
+        n_trees = int(request.form['n-trees'])
+
         X_train, X_test, y_train, y_test = load_dataset(dataset_path)
 
         if request.form['model'] == 'gbc':
-            gbc = GradientBoostingClassifier(learning_rate=0.2,max_depth=3,n_estimators=100)
+            gbc = GradientBoostingClassifier(learning_rate=lr,
+                                             max_depth=dep,
+                                             n_estimators=n_trees)
             gbc.fit(X_train,y_train)
             if request.form['model-name'] == "":
                 pickle.dump(gbc, open("./models/gbc.dat", "wb"))
@@ -85,8 +118,9 @@ def predict():
             test_dataset = cb.Pool(X_test,y_test,cat_features=cat_features_indices)
 
             cbc = cb.CatBoostClassifier(cat_features=cat_features_indices,
-                                        depth=2,
-                                        iterations=500,
+                                        learning_rate=lr,
+                                        depth=dep,
+                                        iterations=n_trees,
                                         eval_metric='Accuracy',
                                         allow_writing_files=False,
                                         logging_level='Silent'

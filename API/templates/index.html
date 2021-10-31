@@ -6,28 +6,52 @@
 
     <body>
         <h2 class="text-center">Train Model</h2>
-
         <form class="p-3 text-center" action='/', method="post" enctype="multipart/form-data">
-            <input class="form-control" type="file" name="dataset">
-            <br>
-            <label>Select model type:</label>
-            <select name="model" id="model">
-                <option value="gbc">Gradient Boosting Classifier</option>
-                <option value="cbc">CatBoost</option>
-            </select>
-            <br>
-            <label>Name model file:</label>
-            <input type="text" name="model-name">
-            <br>
-            <input class="btn btn-primary mt-3" type="submit" name="action" value="Train">
-        </form>
+        {% if not uploaded %}
+        <p class="text-center">Upload data before training.</p>
+        <input class="form-control" type="file" name="dataset">
+        <input class="btn btn-primary mt-3" type="submit" name="action" value="Upload">
+        {% else %}
+        <p class="text-center">Upload new data. Warning: This will delete all models fit to current dataset.</p>
+        <input class="form-control" type="file" name="dataset">
+        <input class="btn btn-primary mt-3" type="submit" name="action" value="Change">
+        <br><br>
+        <label>Select model type:</label>
+        <select name="model" id="model">
+            <option value="gbc">Gradient Boosting Classifier</option>
+            <option value="cbc">CatBoost</option>
+        </select>
+        <br>
+        <div class="row justify-content-center">
+            <div class="col-auto">
+                <table class="center">
+                    <tr>
+                        <td>Learning Rate:</td>
+                        <td>Depth:</td>
+                        <td>Number of Trees:</td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" name="learning-rate" value=0.2 /></td>
+                        <td><input type="text" name="depth" value=3 /></td>
+                        <td><input type="text" name="n-trees" value=100 /></td>
+                    </tr>
 
+                </table>
+            </div>
+        </div>
+        <label>Name model file:</label>
+        <input type="text" name="model-name">
+        <br>
+        <input class="btn btn-primary mt-3" type="submit" name="action" value="Train">
+        <br><br>
+        {% endif %}
         {% if metrics %}
         <p class="text-center"> Train accuracy: <b>{{tr_acc}} %</b></p>
         <p class="text-center"> Test accuracy: <b>{{ts_acc}} %</b></p>
         {% endif %}
-
-        <h2 class="text-center">Predict Data</h2>
+        </form>
+        <h2 class="text-center">Predict Income</h2>
+        {% if trained %}
         <form class="p-3 text-center" action='/', method="post" enctype="multipart/form-data">
             <label>Choose model:</label>
             <select name="model-choice">
@@ -49,14 +73,14 @@
                             <td>Occupation:</td>
                         </tr>
                         <tr>
-                            <td><input type="text" name="age"/></td>
+                            <td><input type="text" name="age" value=39 /></td>
                             <td>
                                 <select name="workclass">{% for x in workclass_list %}
                                 <option value="{{x}}">{{x}}</option>
                                 {% endfor %}
                                 </select>
                             </td>
-                            <td><input type="text" name="fnlwgt"/></td>
+                            <td><input type="text" name="fnlwgt" value=77516 /></td>
                             <td>
                                 <select name="education">{% for x in education_list %}
                                     <option value="{{x}}">{{x}}</option>
@@ -103,14 +127,14 @@
                                     {% endfor %}
                                 </select>
                             </td>
-                            <td><input type="text" name="hours-per-week"/></td>
+                            <td><input type="text" name="hours-per-week" value=40 /></td>
                             <td>
                                 <select name="native-country">{% for x in country_list %}
                                     <option value="{{x}}">{{x}}</option>
                                     {% endfor %}
                                 </select>
                             </td>
-                            <td><input type="text" name="capital"/></td>
+                            <td><input type="text" name="capital" value=2174 /></td>
                         </tr>
                     </table>
                 </div>
@@ -118,6 +142,9 @@
             <br>
             <input class="btn btn-primary mt-3" type="submit" name="action" value="Predict">
         </form>
+        {% else %}
+        <p class="text-center">Train a model before prediction.</p>
+        {% endif %}
 
         {% if prediction %}
         <p class="text-center"> Predicted income is {{prediction}} ({{proba}} %)</p>
