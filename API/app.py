@@ -1,4 +1,5 @@
 import pickle
+import string
 
 import numpy as np
 import pandas as pd
@@ -10,7 +11,6 @@ from sklearn.preprocessing import LabelEncoder
 import category_encoders as ce
 import catboost as cb
 import os
-import shutil
 
 app = Flask(__name__)
 
@@ -61,16 +61,59 @@ def get_persistent_variables():
 
     return context
 
+def validate_inputs(request):
+    if request.form['action'] == "Upload" or request.form['action'] == "Change":
+         if request.files['dataset'].mimetype != "application/vnd.ms-excel":
+            raise Exception("Data empty or not in .csv or .xls format")
 
+    elif request.form['action'] == "Train":
+        safechars = string.ascii_letters + string.digits + "~ -_."
+        try:
+            if float(request.form['learning-rate']) <= 0:
+                raise Exception()
+        except:
+            raise Exception("Learning rate must be of type 'float' and > 0")
+        try:
+            if int(request.form['depth']) <= 0:
+                raise Exception()
+        except:
+            raise Exception("Max Depth must be of type 'int' and > 0")
+        try:
+            if int(request.form['n-trees']) <= 0:
+                raise Exception()
+        except:
+            raise Exception("Number of Trees must be of type 'int' and > 0")
+        if type(request.form['model-name']) != str:
+                raise Exception()
+        elif any(c not in safechars for c in request.form['model-name']):
+            raise Exception("Model name contains illegal characters")
+
+    elif request.form['action'] == "Predict":
+        try:
+            int(request.form['age'])
+        except:
+            raise Exception("Age must be of type 'int'")
+        try:
+            int(request.form['fnlwgt'])
+        except:
+            raise Exception("Final Weight must be of type 'int'")
+        try:
+            int(request.form['hours-per-week'])
+        except:
+            raise Exception("Hours Per Week must be of type 'int'")
+        try:
+            int(request.form['capital'])
+        except:
+            raise Exception("Capital must be of type 'int'")
 
 @app.route('/', methods=['GET'])
-def hello_world():
-    option_list = ["One", "Two", "Three"]
+def homepage():
     return render_template('index.html', **get_persistent_variables())
-
 
 @app.route('/', methods=['POST'])
 def predict():
+    validate_inputs(request)
+
     if request.form['action'] == "Upload":
         dataset = request.files['dataset']
         dataset_path = "./data/" + "data.csv"
@@ -84,15 +127,14 @@ def predict():
         for f in os.listdir("./models/"):
             os.remove(os.path.join("./models/", f))
         dataset = request.files['dataset']
+        print(dataset.mimetype)
         dataset_path = "./data/" + "data.csv"
         dataset.save(dataset_path)
 
         return render_template('index.html', **get_persistent_variables())
 
     if request.form['action'] == "Train":
-        # dataset = request.files['dataset']
         dataset_path = "./data/" + "data.csv"
-        # dataset.save(dataset_path)
 
         lr = float(request.form['learning-rate'])
         dep = int(request.form['depth'])
@@ -168,6 +210,5 @@ def predict():
 
         return render_template('index.html',prediction=prediction,proba=np.round(proba*100,2), **get_persistent_variables())
 
-
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    app.run(port=4000, debug=True)
