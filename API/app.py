@@ -259,5 +259,8 @@ def predict():
 
 
 if __name__ == '__main__':
-    # app.run(port=3000, debug=True)
-    serve(app, listen="127.0.0.1:8080", threads=4)
+    # Use this line for normal use
+    app.run(port=3000, debug=True)
+
+    # Use this line for load testing with locust
+    # serve(app, listen="127.0.0.1:8080", threads=4)
