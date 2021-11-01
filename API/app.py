@@ -10,8 +10,6 @@ from sklearn.preprocessing import LabelEncoder
 import category_encoders as ce
 import catboost as cb
 import os
-from io import StringIO
-import io
 from waitress import serve
 
 app = Flask(__name__)
@@ -33,7 +31,6 @@ def encode_df(df):
     X = encoder.transform(X)  # Encode categorical features
     with open("../data/enc.pkl", "wb") as f:
         pickle.dump(encoder, f)  # Save feature encoder for encoding new inputs
-
 
     return pd.concat((X, pd.Series(y).rename('income')), axis=1)
 
@@ -257,11 +254,10 @@ def predict():
             prediction = ">50k"
         proba = model.predict_proba(input_X)[0][0]
 
-
         return render_template('index.html', prediction=prediction, proba=np.round(proba * 100, 2),
                                **get_persistent_variables())
 
 
 if __name__ == '__main__':
-    #app.run(port=3000, debug=True)
-    serve(app,listen="127.0.0.1:8080", threads=4)
+    # app.run(port=3000, debug=True)
+    serve(app, listen="127.0.0.1:8080", threads=4)
