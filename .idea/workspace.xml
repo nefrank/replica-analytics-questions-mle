@@ -5,16 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f590dd7-2638-4dcd-8c4e-f9e784a61c03" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/replica-analytics-coding-task.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/replica-analytics-coding-task.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/API/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/API/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/USCensus.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/USCensus.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/cbc.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/models/cbc.pkl" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/gbc.pkl" beforeDir="false" afterPath="$PROJECT_DIR$/models/gbc.pkl" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
