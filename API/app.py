@@ -30,7 +30,9 @@ def encode_df(df):
     encoder = ce.OrdinalEncoder(cols=X.iloc[:, np.where(X.dtypes == object)[0]].columns, return_df=True)
     encoder = encoder.fit(X)
     X = encoder.transform(X)  # Encode categorical features
-    pickle.dump(encoder, open("../data/enc.pkl", "wb"))  # Save feature encoder for encoding new inputs
+    with open("../data/enc.pkl", "wb") as f:
+        pickle.dump(encoder, f)  # Save feature encoder for encoding new inputs
+
 
     return pd.concat((X, pd.Series(y).rename('income')), axis=1)
 
@@ -146,16 +148,20 @@ def homepage():
 @app.route('/', methods=['POST'])
 def predict():
     # POST method renders template depending on action performed
+
+    # Validate inputs to display error before making any changes
     try:
         validate_inputs(request)
     except Exception as e:
         return render_template('index.html', error=e, **get_persistent_variables())
 
+    # When data is uploaded, save it to the data folder
     if request.form['action'] == "Upload":
         dataset = request.files['dataset']
         dataset.save(DATASET_PATH)
         return render_template('index.html', **get_persistent_variables())
 
+    # If new data is uploaded, remove all models fit to old data and save new data
     if request.form['action'] == "Change":
         for f in os.listdir("./data/"):
             os.remove(os.path.join("./data/", f))
@@ -165,26 +171,32 @@ def predict():
         dataset.save(DATASET_PATH)
         return render_template('index.html', **get_persistent_variables())
 
+    # Train model using uploaded data and provided model parameters
     if request.form['action'] == "Train":
-
+        # Model parameters from form
         lr = float(request.form['learning_rate'])
         dep = int(request.form['depth'])
         n_trees = int(request.form['n_trees'])
 
+        # Fetch and prepare data
         X_train, X_test, y_train, y_test = load_dataset()
 
+        # Training logic based on model type
         if request.form['model'] == 'gbc':
             gbc = GradientBoostingClassifier(learning_rate=lr,
                                              max_depth=dep,
                                              n_estimators=n_trees)
             gbc.fit(X_train, y_train)
             if request.form['model_name'] == "":
-                pickle.dump(gbc, open("./models/gbc.pkl", "wb"))
+                with open("./models/gbc.pkl", "wb") as f:
+                    pickle.dump(gbc, f)
             else:
-                pickle.dump(gbc, open("./models/" + request.form['model_name'] + ".pkl", "wb"))
+                with open("./models/" + request.form['model_name'] + ".pkl", "wb") as f:
+                    pickle.dump(gbc, f)
 
             train_acc, test_acc = evaluate_model(gbc, X_train, y_train, X_test, y_test)
 
+        # Training logic based on model type
         if request.form['model'] == 'cbc':
             cat_features_indices = np.where(X_train.dtypes == 'object')[0]
             train_dataset = cb.Pool(X_train, y_train, cat_features=cat_features_indices)
@@ -200,9 +212,11 @@ def predict():
                                         )
             cbc.fit(train_dataset, eval_set=test_dataset, plot=False)
             if request.form['model_name'] == "":
-                pickle.dump(cbc, open("./models/cbc.pkl", "wb"))
+                with open("./models/cbc.pkl", "wb") as f:
+                    pickle.dump(cbc, f)
             else:
-                pickle.dump(cbc, open("./models/" + request.form['model_name'] + ".pkl", "wb"))
+                with open("./models/" + request.form['model_name'] + ".pkl", "wb") as f:
+                    pickle.dump(cbc, f)
 
             train_acc, test_acc = evaluate_model(cbc, X_train, y_train, X_test, y_test)
 
@@ -210,9 +224,12 @@ def predict():
                                metrics=True,
                                **get_persistent_variables())
 
+    # Predict using selected model based on provided parameters
     if request.form['action'] == "Predict":
-        model = pickle.load(open("./models/" + request.form['model_choice'], "rb"))
-        encoder = pickle.load(open("../data/enc.pkl", "rb"))
+        with open("./models/" + request.form['model_choice'], "rb") as f:
+            model = pickle.load(f)
+        with open("../data/enc.pkl", "rb") as f:
+            encoder = pickle.load(f)
 
         input_X = [int(request.form['age']),
                    request.form['workclass'],
@@ -232,8 +249,6 @@ def predict():
                                      'native-country', 'capital'])
         df_X.loc[0, :] = input_X
         input_X = encoder.transform(df_X)
-
-
         pred = model.predict(input_X)[0]
         if pred == 0:
             prediction = "<=50k"

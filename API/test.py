@@ -4,6 +4,7 @@ from app import app
 import unittest
 from werkzeug.datastructures import FileStorage
 from shutil import copyfile
+import warnings
 
 
 unittest.TestLoader.sortTestMethodsUsing = None
@@ -16,6 +17,12 @@ PREDICT_CAT_PARAMS = {'workclass':"State-gov",
                       'sex':"Male",
                       'native_country':'United-States'}
 
+def ignore_warnings(test_func):
+    def do_test(self, *args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            test_func(self, *args, **kwargs)
+    return do_test
 
 def get_dataset():
     my_file_name = os.path.join("../data/us census data.csv")
@@ -67,7 +74,6 @@ class FlaskTestCase(unittest.TestCase):
 
     def test_train_valid(self):
         tester = app.test_client(self)
-        dataset=get_dataset()
         response = tester.post(
             '/',
             data=dict(learning_rate="0.1", depth="3", n_trees="100",model="gbc", model_name="test_name", action="Train")
@@ -79,7 +85,6 @@ class FlaskTestCase(unittest.TestCase):
 
     def test_train_invalid_lr(self):
         tester = app.test_client(self)
-        dataset=get_dataset()
         response = tester.post(
             '/',
             data=dict(learning_rate="-4", depth="3", n_trees="100",model="gbc", model_name="test_name", action="Train")
@@ -89,10 +94,8 @@ class FlaskTestCase(unittest.TestCase):
         self.assertTrue(b"Learning rate must be" in response.data)
         self.assertTrue("test_name.pkl" not in os.listdir("./models/"))
 
-
     def test_train_invalid_depth(self):
         tester = app.test_client(self)
-        dataset=get_dataset()
         response = tester.post(
             '/',
             data=dict(learning_rate="0.1", depth="0", n_trees="100",model="gbc", model_name="test_name", action="Train")
@@ -104,7 +107,6 @@ class FlaskTestCase(unittest.TestCase):
 
     def test_train_invalid_ntrees(self):
         tester = app.test_client(self)
-        dataset=get_dataset()
         response = tester.post(
             '/',
             data=dict(learning_rate="0.1", depth="3", n_trees="0",model="gbc", model_name="test_name", action="Train")
@@ -159,7 +161,6 @@ class FlaskTestCase(unittest.TestCase):
         self.assertTrue(b'Age must be' in response.data)
         self.assertTrue(b'Predicted income is' not in response.data)
 
-
     def test_predict_invalid_fnlwgt(self):
             tester = app.test_client(self)
             get_model()
@@ -182,7 +183,6 @@ class FlaskTestCase(unittest.TestCase):
             )
             self.assertTrue(b'Final Weight must be' in response.data)
             self.assertTrue(b'Predicted income is' not in response.data)
-
 
     def test_predict_invalid_hours(self):
             tester = app.test_client(self)
