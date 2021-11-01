@@ -12,6 +12,7 @@ import catboost as cb
 import os
 from io import StringIO
 import io
+from waitress import serve
 
 app = Flask(__name__)
 
@@ -262,4 +263,5 @@ def predict():
 
 
 if __name__ == '__main__':
-    app.run(port=3000, debug=True)
+    #app.run(port=3000, debug=True)
+    serve(app,listen="127.0.0.1:8080", threads=4)

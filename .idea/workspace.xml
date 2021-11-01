@@ -5,7 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6f590dd7-2638-4dcd-8c4e-f9e784a61c03" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/USCensus.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/USCensus.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/API/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/API/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,11 +36,12 @@
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/API" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/API/data" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Noah\Documents\GitHub\replica-analytics-coding-task\API\data" />
       <recent name="C:\Users\Noah\Documents\GitHub\replica-analytics-coding-task\API" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -47,8 +49,8 @@
       <recent name="C:\Users\Noah\Documents\GitHub\replica-analytics-coding-task" />
     </key>
   </component>
-  <component name="RunManager" selected="Python tests.Python tests in test.py">
-    <configuration name="Python tests for test.FlaskTestCase.test_change" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.app">
+    <configuration name="app" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="replica-analytics-coding-task" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -57,9 +59,13 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;test.FlaskTestCase.test_change&quot;" />
-      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/API/app.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
     <configuration name="Python tests for test.FlaskTestCase.test_train_invalid_lr" type="tests" factoryName="Autodetect" temporary="true" nameIsGenerated="true">
@@ -120,11 +126,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.app" />
         <item itemvalue="Python tests.Python tests in test.py" />
         <item itemvalue="Python tests.Python tests for test.FlaskTestCase.test_train_invalid_lr" />
         <item itemvalue="Python tests.Python tests for test.FlaskTestCase.test_train_valid" />
         <item itemvalue="Python tests.Python tests for test.FlaskTestCase.test_upload" />
-        <item itemvalue="Python tests.Python tests for test.FlaskTestCase.test_change" />
       </list>
     </recent_temporary>
   </component>
